@@ -55,23 +55,24 @@ namespace RotaryEncoder {
                 } else {
                     encoder_B_C2_DigitalValue_Now = 1
                 }
+
+                if (encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int >= encoder_digitalvalue_staterisefallchange_count_in){
+                    control.raiseEvent(on_EncoderNewState_Event_Id, encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int);
+                    encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int += 1;
+                    if (_system_Debug_On_Bool) {
+                        serial.writeLine("***** b_c2:: on_EncoderNewState_Event_Id:: " + " StateChg_Target:" + convertToText(encoder_digitalvalue_staterisefallchange_count_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
+                    }
+                }
+
+                if (_system_Debug_On_Bool) {                
+                    serial.writeLine("* b_c2:: " + " Ana:" + convertToText(encoder_B_C2_AnalogPin_Value_Now) + " Dig+:" + convertToText(encoder_B_C2_DigitalValue_Now) + " Dig-:" + convertToText(encoder_B_C2_DigitalValue_Old) + " StateChg_Target:" + convertToText(encoder_digitalvalue_staterisefallchange_count_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
+                }
+       
                 if (encoder_B_C2_DigitalValue_Now != encoder_B_C2_DigitalValue_Old) {
                     encoder_B_C2_DigitalValue_Old = encoder_B_C2_DigitalValue_Now
                     encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int += 1
                 }
 
-                if (encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int >= encoder_digitalvalue_staterisefallchange_count_in){
-                    control.raiseEvent(on_EncoderNewState_Event_Id, encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int);
-                    encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int = 0;
-                    if (_system_Debug_On_Bool) {
-                        serial.writeLine("***** b_c2:: on_EncoderNewState_Event_Id:" + " StateChg_Target" + convertToText(encoder_digitalvalue_staterisefallchange_count_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
-                    }
-                }
-
-                if (_system_Debug_On_Bool) {                
-                    serial.writeLine("* b_c2::" + " Ana:" + convertToText(encoder_B_C2_AnalogPin_Value_Now) + " Dig+ " + convertToText(encoder_B_C2_DigitalValue_Now) + " Dig- " + convertToText(encoder_B_C2_DigitalValue_Old) + " StateChg_Target" + convertToText(encoder_digitalvalue_staterisefallchange_count_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
-                }
-       
                 /// jwc encoder_A_C1_AnalogPin_Value_Now = pins.analogReadPin(encoder_A_C1_AnalogPin);
 
                 ///jwc template: if (riValue == 1 && dvValue == 1) rotateReady = true;
