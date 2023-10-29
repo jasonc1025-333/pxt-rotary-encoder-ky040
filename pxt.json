@@ -1,6 +1,6 @@
 {
     "name": "ky040",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "Tinkercademy package for KY-040 rotary encoder",
     "license": "MIT",
     "dependencies": {
