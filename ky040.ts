@@ -15,8 +15,6 @@ let encoder_B_C2_DigitalValue_Old = 0;
 let encoder_A_C1_DigitalValue_StateRiseFallChange_Count_Int = 0;
 let encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int = 0;
 
-let __system_Debug_On_Bool = false;
-
 let on_EncoderNewState_Event_Id = 5600;
 
 let ri: DigitalPin;
@@ -43,7 +41,7 @@ namespace RotaryEncoder {
      */
     //% blockId=on_EncoderNewState_Event_Fn
     //% block="on_EncoderNewState_Event_Fn | encoder_digitalvalue_staterisefallchange_count_target_in: %encoder_digitalvalue_staterisefallchange_count_target_in"
-    export function on_EncoderNewState_Event_Fn(encoder_digitalvalue_staterisefallchange_count_target_in: number, cpu_delay_msec_in: number, body: () => void): void {
+    export function on_EncoderNewState_Event_Fn(encoder_digitalvalue_staterisefallchange_count_target_in: number, cpu_delay_msec_in: number, debug_on_bool_in: boolean, body: () => void): void {
         serial.setBaudRate(115200);
         control.onEvent(on_EncoderNewState_Event_Id, encoder_digitalvalue_staterisefallchange_count_target_in, body);
         control.inBackground(() => {
@@ -61,12 +59,12 @@ namespace RotaryEncoder {
                     control.raiseEvent(on_EncoderNewState_Event_Id, encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int);
                     control.raiseEvent(EventBusSource.MICROBIT_ID_IO_P0, EventBusValue.MICROBIT_RADIO_EVT_DATAGRAM)
 
-                    // No need to place under '__system_Debug_On_Bool' since not resource_hungry
+                    // No need to place under 'debug_on_bool_in' since not resource_hungry
                     serial.writeLine("***** b_c2:: on_EncoderNewState_Event_Id:: " + " StateChg_Target:" + convertToText(encoder_digitalvalue_staterisefallchange_count_target_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int) + " cpu_delay_msec_in:" + convertToText(cpu_delay_msec_in));
                     encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int = 0;
                 }
 
-                if (__system_Debug_On_Bool) {                
+                if (debug_on_bool_in) {                
                     serial.writeLine("* b_c2:: " + " Ana:" + convertToText(encoder_B_C2_AnalogPin_Value_Now) + " Dig+:" + convertToText(encoder_B_C2_DigitalValue_Now) + " Dig-:" + convertToText(encoder_B_C2_DigitalValue_Old) + " StateChg_Target:" + convertToText(encoder_digitalvalue_staterisefallchange_count_target_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
                 }
        

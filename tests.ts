@@ -5,7 +5,7 @@ let encoder_B_C2_DigitalValue_StateRiseFallChange_Count_2_Int = 0;
 
 RotaryEncoder.init_Encoder_AnalogPins_Fn(AnalogPin.P0, AnalogPin.P1);
 
-RotaryEncoder.on_EncoderNewState_Event_Fn(1000, 5, () => {
+RotaryEncoder.on_EncoderNewState_Event_Fn(1000, 1, true, () => {
     encoder_B_C2_DigitalValue_StateRiseFallChange_Count_2_Int +=1;
     serial.writeLine("***** ***** RotaryEncoder.on_EncoderNewState_Event_Fn: " + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_2_Int));
 })
