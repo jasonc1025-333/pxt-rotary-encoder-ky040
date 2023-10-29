@@ -41,10 +41,10 @@ namespace RotaryEncoder {
      * rotary encoder was rotated.
      */
     //% blockId=on_EncoderNewState_Event_Fn
-    //% block="on_EncoderNewState_Event_Fn | encoder_digitalvalue_staterisefallchange_count_in: %encoder_digitalvalue_staterisefallchange_count_in"
-    export function on_EncoderNewState_Event_Fn(encoder_digitalvalue_staterisefallchange_count_in: number,  body: () => void): void {
+    //% block="on_EncoderNewState_Event_Fn | encoder_digitalvalue_staterisefallchange_count_target_in: %encoder_digitalvalue_staterisefallchange_count_target_in"
+    export function on_EncoderNewState_Event_Fn(encoder_digitalvalue_staterisefallchange_count_target_in: number,  body: () => void): void {
         serial.setBaudRate(115200);
-        control.onEvent(on_EncoderNewState_Event_Id, encoder_digitalvalue_staterisefallchange_count_in, body);
+        control.onEvent(on_EncoderNewState_Event_Id, encoder_digitalvalue_staterisefallchange_count_target_in, body);
         control.inBackground(() => {
             while (true) {
 
@@ -56,16 +56,16 @@ namespace RotaryEncoder {
                     encoder_B_C2_DigitalValue_Now = 1
                 }
 
-                if (encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int >= encoder_digitalvalue_staterisefallchange_count_in){
+                if (encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int >= encoder_digitalvalue_staterisefallchange_count_target_in){
                     control.raiseEvent(on_EncoderNewState_Event_Id, encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int);
-                    encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int += 1;
                     if (_system_Debug_On_Bool) {
-                        serial.writeLine("***** b_c2:: on_EncoderNewState_Event_Id:: " + " StateChg_Target:" + convertToText(encoder_digitalvalue_staterisefallchange_count_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
+                        serial.writeLine("***** b_c2:: on_EncoderNewState_Event_Id:: " + " StateChg_Target:" + convertToText(encoder_digitalvalue_staterisefallchange_count_target_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
                     }
+                    encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int = 0;
                 }
 
                 if (_system_Debug_On_Bool) {                
-                    serial.writeLine("* b_c2:: " + " Ana:" + convertToText(encoder_B_C2_AnalogPin_Value_Now) + " Dig+:" + convertToText(encoder_B_C2_DigitalValue_Now) + " Dig-:" + convertToText(encoder_B_C2_DigitalValue_Old) + " StateChg_Target:" + convertToText(encoder_digitalvalue_staterisefallchange_count_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
+                    serial.writeLine("* b_c2:: " + " Ana:" + convertToText(encoder_B_C2_AnalogPin_Value_Now) + " Dig+:" + convertToText(encoder_B_C2_DigitalValue_Now) + " Dig-:" + convertToText(encoder_B_C2_DigitalValue_Old) + " StateChg_Target:" + convertToText(encoder_digitalvalue_staterisefallchange_count_target_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
                 }
        
                 if (encoder_B_C2_DigitalValue_Now != encoder_B_C2_DigitalValue_Old) {
