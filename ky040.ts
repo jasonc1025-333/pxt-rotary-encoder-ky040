@@ -17,13 +17,14 @@ let encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int = 0;
 
 let _system_Debug_On_Bool = true;
 
-let on_EncoderNewState_Event_Id = 5700;
+let on_EncoderNewState_Event_Id = 5600;
 
 let ri: DigitalPin;
 let dv: DigitalPin;
 let dsw: DigitalPin;
 let lastPressed = 1;
-let pressedID = 5600;
+//// jwc o let pressedID = 5600;
+let pressedID = 5603;
 let rotatedLeftID = 5601;
 let rotatedRightID = 5602;
 let rotateReady = true;
@@ -58,6 +59,8 @@ namespace RotaryEncoder {
 
                 if (encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int >= encoder_digitalvalue_staterisefallchange_count_target_in){
                     control.raiseEvent(on_EncoderNewState_Event_Id, encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int);
+                    control.raiseEvent(EventBusSource.MICROBIT_ID_IO_P0, EventBusValue.MICROBIT_RADIO_EVT_DATAGRAM)
+
                     if (_system_Debug_On_Bool) {
                         serial.writeLine("***** b_c2:: on_EncoderNewState_Event_Id:: " + " StateChg_Target:" + convertToText(encoder_digitalvalue_staterisefallchange_count_target_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
                     }
