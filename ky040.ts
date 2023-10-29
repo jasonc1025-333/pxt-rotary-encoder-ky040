@@ -1,3 +1,24 @@
+// jwc 23-1028-2000 1st Draft
+
+let encoder_A_C1_AnalogPin: AnalogPin;
+let encoder_B_C2_AnalogPin: AnalogPin;
+
+let encoder_A_C1_AnalogPin_Value_Now = 0;
+let encoder_B_C2_AnalogPin_Value_Now = 0;
+
+let encoder_A_C1_DigitalValue_Now = 0;
+let encoder_B_C2_DigitalValue_Now = 0;
+
+let encoder_A_C1_DigitalValue_Old = 0;
+let encoder_B_C2_DigitalValue_Old = 0;
+
+let encoder_A_C1_DigitalValue_StateRiseFallChange_Count_Int = 0;
+let encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int = 0;
+
+let _system_Debug_On_Bool = true;
+
+let on_EncoderNewState_Event_Id = 5700;
+
 let ri: DigitalPin;
 let dv: DigitalPin;
 let dsw: DigitalPin;
@@ -16,6 +37,62 @@ enum RotationDirection {
 //% icon="\uf01e"
 namespace RotaryEncoder {
 
+    /**
+     * rotary encoder was rotated.
+     */
+    //% blockId=on_EncoderNewState_Event_Fn
+    //% block="on_EncoderNewState_Event_Fn | encoder_digitalvalue_staterisefallchange_count_in: %encoder_digitalvalue_staterisefallchange_count_in"
+    export function on_EncoderNewState_Event_Fn(encoder_digitalvalue_staterisefallchange_count_in: number,  body: () => void): void {
+        serial.setBaudRate(115200);
+        control.onEvent(on_EncoderNewState_Event_Id, encoder_digitalvalue_staterisefallchange_count_in, body);
+        control.inBackground(() => {
+            while (true) {
+
+                encoder_B_C2_AnalogPin_Value_Now = pins.analogReadPin(encoder_B_C2_AnalogPin);
+                
+                if (encoder_B_C2_AnalogPin_Value_Now == 0) {
+                    encoder_B_C2_DigitalValue_Now = 0
+                } else {
+                    encoder_B_C2_DigitalValue_Now = 1
+                }
+                if (encoder_B_C2_DigitalValue_Now != encoder_B_C2_DigitalValue_Old) {
+                    encoder_B_C2_DigitalValue_Old = encoder_B_C2_DigitalValue_Now
+                    encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int += 1
+                }
+
+                if (encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int >= encoder_digitalvalue_staterisefallchange_count_in){
+                    control.raiseEvent(on_EncoderNewState_Event_Id, encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int);
+                    encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int = 0;
+                    if (_system_Debug_On_Bool) {
+                        serial.writeLine("***** b_c2:: on_EncoderNewState_Event_Id:" + " StateChg_Target" + convertToText(encoder_digitalvalue_staterisefallchange_count_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
+                    }
+                }
+
+                if (_system_Debug_On_Bool) {                
+                    serial.writeLine("* b_c2::" + " Ana:" + convertToText(encoder_B_C2_AnalogPin_Value_Now) + " Dig+ " + convertToText(encoder_B_C2_DigitalValue_Now) + " Dig- " + convertToText(encoder_B_C2_DigitalValue_Old) + " StateChg_Target" + convertToText(encoder_digitalvalue_staterisefallchange_count_in) + " StateChg_Now:" + convertToText(encoder_B_C2_DigitalValue_StateRiseFallChange_Count_Int));
+                }
+       
+                /// jwc encoder_A_C1_AnalogPin_Value_Now = pins.analogReadPin(encoder_A_C1_AnalogPin);
+
+                ///jwc template: if (riValue == 1 && dvValue == 1) rotateReady = true;
+                ///jwc template: else if (rotateReady) {
+                ///jwc template:     if (riValue == 1 && dvValue == 0) {
+                ///jwc template:         serial.writeLine("Right!");
+                ///jwc template:         rotateReady = false;
+                ///jwc template:         control.raiseEvent(rotatedRightID, RotationDirection.Right);
+                ///jwc template:     }
+                ///jwc template:     else if (riValue == 0 && dvValue == 1) {
+                ///jwc template:         serial.writeLine("Left!")
+                ///jwc template:         rotateReady = false;
+                ///jwc template:         control.raiseEvent(rotatedLeftID, RotationDirection.Left);
+                ///jwc template:     }
+                ///jwc template: }
+                
+                /// jwc TODO need to readjust?
+                basic.pause(5);
+            }
+        })
+    }
     /**
      * rotary encoder was rotated.
      */
@@ -79,4 +156,15 @@ namespace RotaryEncoder {
         dv = dt;
         dsw = sw;
     }
+    /**
+     * initialises local variables and enables the rotary encoder.
+     */
+    //% blockId=init_Encoder_AnalogPins
+    //% block="connect encoder_A_C1_In %encoder_A_C1_In|encoder_B_C2_In %encoder_B_C2_In"
+    //% icon="\uf1ec"
+    export function init_Encoder_AnalogPins_Fn(encoder_A_C1_In: AnalogPin, encoder_B_C2_In: AnalogPin): void {
+        encoder_A_C1_AnalogPin = encoder_A_C1_In;
+        encoder_B_C2_AnalogPin = encoder_B_C2_In;
+    }
+
 }
