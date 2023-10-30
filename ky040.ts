@@ -1,7 +1,7 @@
-let ri: DigitalPin;
-let dv: DigitalPin;
-let dsw: DigitalPin;
-let lastPressed = 1;
+let digitalPinNumber_Clock: DigitalPin;
+let digitalPinNumber_Data: DigitalPin;
+let digitalPinNumber_Switch: DigitalPin;
+let digitalPinValue_Switch_Old = 1;
 let pressedID = 5600;
 let rotatedLeftID = 5601;
 let rotatedRightID = 5602;
@@ -23,26 +23,38 @@ namespace RotaryEncoder {
     //% block="on rotated |%dir"
     export function onRotateEvent(dir: RotationDirection, body: () => void): void {
         serial.setBaudRate(115200);
+        // jwc following generates new dyanmic functions: 'control.onEvent(rotatedLeftID...' & 'control.onEvent(rotatedRightID...'
+        //
         if (dir == RotationDirection.Left) control.onEvent(rotatedLeftID, dir, body);
         if (dir == RotationDirection.Right) control.onEvent(rotatedRightID, dir, body);
+        
         control.inBackground(() => {
             while (true) {
-                const riValue = pins.digitalReadPin(ri);
-                const dvValue = pins.digitalReadPin(dv);
-                serial.writeValue("ri", riValue);
-                serial.writeValue("dv", dvValue);
-                if (riValue == 1 && dvValue == 1) rotateReady = true;
+                const digitalPinValue_Clock = pins.digitalReadPin(digitalPinNumber_Clock);
+                const digitalPinValue_Data = pins.digitalReadPin(digitalPinNumber_Data);
+                //// jwc o serial.writeValue("digitalPinNumber_Clock", digitalPinValue_Clock);
+                //// jwc o serial.writeValue("digitalPinNumber_Data", digitalPinValue_Data);
+                //// jwc y serial.writeLine("* C:" + convertToText(digitalPinValue_Clock) + " D:" + convertToText(digitalPinValue_Data))
+                if (digitalPinValue_Clock == 1 && digitalPinValue_Data == 1) rotateReady = true;
                 else if (rotateReady) {
-                    if (riValue == 1 && dvValue == 0) {
-                        serial.writeLine("Right!");
+                    ////jwc o if (digitalPinValue_Clock == 1 && digitalPinValue_Data == 0) {
+                    if (digitalPinValue_Clock == 0 && digitalPinValue_Data == 1) {
+                        serial.writeLine("***2 Right");
                         rotateReady = false;
                         control.raiseEvent(rotatedRightID, RotationDirection.Right);
                     }
-                    else if (riValue == 0 && dvValue == 1) {
-                        serial.writeLine("Left!")
+                    ////jwc o else if (digitalPinValue_Clock == 0 && digitalPinValue_Data == 1) {
+                    else if (digitalPinValue_Clock == 1 && digitalPinValue_Data == 0) {
+                        serial.writeLine("***2 Left")
                         rotateReady = false;
                         control.raiseEvent(rotatedLeftID, RotationDirection.Left);
                     }
+                    else{
+                        serial.writeLine("***2 Neither Right nor Left")
+                    }
+                }
+                else {
+                    serial.writeLine("*1 Neither Stage 1")
                 }
                 basic.pause(5);
             }
@@ -58,10 +70,10 @@ namespace RotaryEncoder {
         control.onEvent(pressedID, 0, body);
         control.inBackground(() => {
             while (true) {
-                const pressed = pins.digitalReadPin(dsw);
-                if (pressed != lastPressed) {
-                    lastPressed = pressed;
-                    if (pressed == 0) control.raiseEvent(pressedID, 0);
+                const digitalPinValue_Switch = pins.digitalReadPin(digitalPinNumber_Switch);
+                if (digitalPinValue_Switch != digitalPinValue_Switch_Old) {
+                    digitalPinValue_Switch_Old = digitalPinValue_Switch;
+                    if (digitalPinValue_Switch == 0) control.raiseEvent(pressedID, 0);
                 }
                 basic.pause(50);
             }
@@ -75,8 +87,8 @@ namespace RotaryEncoder {
     //% block="connect clk %clk|dt %dt|sw %sw"
     //% icon="\uf1ec"
     export function init(clk: DigitalPin, dt: DigitalPin, sw: DigitalPin): void {
-        ri = clk;
-        dv = dt;
-        dsw = sw;
+        digitalPinNumber_Clock = clk;
+        digitalPinNumber_Data = dt;
+        digitalPinNumber_Switch = sw;
     }
 }
